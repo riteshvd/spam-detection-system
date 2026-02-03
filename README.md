@@ -1,7 +1,7 @@
 # Spam Detection System - Frontend & API Gateway
 
-Author: Landon Shumake  
-Components: Frontend (React) + API Gateway (Node.js/Express) + Spam Detection(Implemented by my partners)
+Author: Ritesh Varma Dommaraju  
+Components: Frontend (React) + API Gateway (Node.js/Express) + Spam Detection
 
 ## Prerequisites:
 
