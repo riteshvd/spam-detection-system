@@ -1,0 +1,117 @@
+Backend integration steps for your reference:
+
+STEP 1: COPY THE ENTIRE BACKEND FOLDER
+
+Go to: D:\spam-detection-backend\spam_detection_service\
+
+Copy this entire folder to your computer:
+- spam_detection_service/
+  ├── __init__.py
+  ├── app.py
+  ├── auth.py
+  ├── circuit_breaker.py
+  └── ml_service.py
+
+Also copy these files:
+- requirements.txt
+- docker-compose.yml
+- Dockerfile
+- train.py
+- models/spam_nb.pkl (the trained model)
+
+STEP 2: RUN THE BACKEND ON YOUR COMPUTER
+
+1. Open Terminal/Command Prompt
+2. Navigate to spam-detection-backend folder
+3. Run this command:
+
+   docker-compose up
+
+Wait for it to say "Running on http://0.0.0.0:5000"
+
+That's it! Backend is now running.
+
+STEP 3: CONNECT FROM YOUR FRONTEND
+
+In your frontend code, use this URL:
+
+   http://localhost:5000
+
+STEP 4: USE THESE 3 API CALLS IN YOUR FRONTEND
+
+Call 1: Login
+
+async function login() {
+const res = await fetch('http://localhost:5000/auth/login', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ username: 'admin', password: 'spam-detection-2025' })
+});
+const data = await res.json();
+localStorage.setItem('token', data.access_token);
+}
+
+Call 2: Get Data
+async function getData(emailText) {
+const token = localStorage.getItem('token');
+const res = await fetch('http://localhost:5000/api/ml/predict', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': Bearer ${token}
+},
+body: JSON.stringify({ email_text: emailText })
+});
+const result = await res.json();
+return result; // { classification: "spam", confidence: 0.85 }
+}
+
+Call 3: Handle Errors
+if (response.status === 401) {
+// Token expired - redirect to login
+window.location.href = '/login';
+}
+
+if (response.status === 503) {
+// Service busy - wait and retry
+setTimeout(() => { /* retry */ }, 60000);
+}
+
+
+TEST IT WORKS
+
+1. Run: docker-compose up
+2. Open browser console (F12)
+3. Paste this:
+
+async function test() {
+const login = await fetch('http://localhost:5000/auth/login', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ username: 'admin', password: 'spam-detection-2025' })
+});
+const { access_token } = await login.json();
+
+text
+const predict = await fetch('http://localhost:5000/api/ml/predict', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${access_token}`
+    },
+    body: JSON.stringify({ email_text: 'Buy now!!!' })
+});
+const result = await predict.json();
+console.log('Result:', result);
+}
+test();
+
+
+4. If you see: { classification: "spam", confidence: 0.85 }
+   → Everything works! 
+
+Just:
+1. Copy the folder
+2. Run docker-compose up
+3. Use the 3 API calls in frontend
+4. Done!

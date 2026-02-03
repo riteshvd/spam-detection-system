@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:8.2
+    container_name: spam-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: spam-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  backend:
+    build: .
+    container_name: spam-backend
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      MONGODB_URL: mongodb://mongo:27017/spam-detection
+      REDIS_URL: redis://redis:6379
+      FLASK_ENV: production
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - .:/app
+
+volumes:
+  mongo-data:
+  redis-data:
